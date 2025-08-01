@@ -2081,6 +2081,14 @@ public class IcebergCatalog extends BaseMetastoreViewCatalog
     StorageAccessConfig storageAccessConfig =
         storageAccessConfigProvider.getStorageAccessConfig(
             identifier, readLocations, storageActions, Optional.empty(), resolvedStorageEntity);
+    AccessConfig accessConfig =
+        accessConfigProvider.getAccessConfigForCredentialsVending(
+            callContext,
+            identifier,
+            readLocations,
+            storageActions,
+            Optional.empty(),
+            resolvedStorageEntity);
     // Reload fileIO based on table specific context
     FileIO fileIO = fileIOFactory.loadFileIO(storageAccessConfig, ioImplClassName, tableProperties);
     // ensure the new fileIO is closed when the catalog is closed
