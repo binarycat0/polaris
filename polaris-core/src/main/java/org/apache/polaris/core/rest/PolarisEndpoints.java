@@ -23,7 +23,6 @@ import java.util.Set;
 import org.apache.iceberg.rest.Endpoint;
 import org.apache.polaris.core.config.FeatureConfiguration;
 import org.apache.polaris.core.config.RealmConfig;
-import org.apache.polaris.core.entity.CatalogEntity;
 
 public class PolarisEndpoints {
   // Generic table endpoints
