@@ -815,17 +815,6 @@ public class IcebergCatalogHandler extends CatalogHandler implements AutoCloseab
           storageAccessConfigProvider.getStorageAccessConfigForRemoteSigning(
               catalogName, tableIdentifier, resolvedStoragePath);
 
-      Map<String, String> credentialConfig = accessConfig.credentials();
-
-      if (!credentialConfig.isEmpty()) {
-        responseBuilder.addAllConfig(credentialConfig);
-        responseBuilder.addCredential(
-            ImmutableCredential.builder()
-                .prefix(tableMetadata.location())
-                .config(credentialConfig)
-                .build());
-      }
-
       responseBuilder.addAllConfig(accessConfig.extraProperties());
 
       return responseBuilder;
