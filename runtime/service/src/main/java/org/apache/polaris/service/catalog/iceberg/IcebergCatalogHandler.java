@@ -869,24 +869,32 @@ public class IcebergCatalogHandler extends CatalogHandler implements AutoCloseab
   private AccessDelegationMode selectAccessDelegationMode(
       Set<AccessDelegationMode> delegationModes) {
 
-    // Whether vending credentials is globally enabled
-    boolean skipCredIndirection =
-        realmConfig.getConfig(FeatureConfiguration.SKIP_CREDENTIAL_SUBSCOPING_INDIRECTION);
+    if (delegationModes.isEmpty()) {
+      return UNKNOWN;
+    }
 
-    // Credential subscoping is only allowed for local catalogs
-    // and federated catalogs that have credential vending explicitly enabled.
-    boolean credentialSubscopingAllowed =
-        baseCatalog instanceof IcebergCatalog
-            || realmConfig.getConfig(
-                ALLOW_FEDERATED_CATALOGS_CREDENTIAL_VENDING, getResolvedCatalogEntity());
+    if (delegationModes.size() == 1) {
+      return delegationModes.iterator().next();
+    }
 
-    // Always prefer VENDED_CREDENTIALS if requested and available,
-    // even if REMOTE_SIGNING is also requested.
-    return delegationModes.contains(VENDED_CREDENTIALS)
-            && credentialSubscopingAllowed
-            && !skipCredIndirection
-        ? VENDED_CREDENTIALS
-        : delegationModes.contains(REMOTE_SIGNING) ? REMOTE_SIGNING : UNKNOWN;
+    if (delegationModes.contains(VENDED_CREDENTIALS) && delegationModes.contains(REMOTE_SIGNING)) {
+
+      boolean skipCredIndirection =
+          realmConfig.getConfig(FeatureConfiguration.SKIP_CREDENTIAL_SUBSCOPING_INDIRECTION);
+
+      boolean credentialSubscopingAllowed =
+          baseCatalog instanceof IcebergCatalog
+              || realmConfig.getConfig(
+                  ALLOW_FEDERATED_CATALOGS_CREDENTIAL_VENDING, getResolvedCatalogEntity());
+
+      // If both modes are supported, prefer VENDED_CREDENTIALS,
+      // but only if credential subscoping is allowed for this catalog
+      return !skipCredIndirection && credentialSubscopingAllowed
+          ? VENDED_CREDENTIALS
+          : REMOTE_SIGNING;
+    }
+
+    throw new IllegalArgumentException("Unsupported access delegation modes: " + delegationModes);
   }
 
   private void validateRemoteTableLocations(
@@ -1290,15 +1298,14 @@ public class IcebergCatalogHandler extends CatalogHandler implements AutoCloseab
     CatalogEntity catalogEntity = getResolvedCatalogEntity();
 
     LOGGER.info("Catalog type: {}", catalogEntity.getCatalogType());
-    LOGGER.info(
-        "allow external catalog credential vending: {}",
+    Boolean allowCredentialVending =
         realmConfig.getConfig(
-            FeatureConfiguration.ALLOW_EXTERNAL_CATALOG_CREDENTIAL_VENDING, catalogEntity));
-    if (catalogEntity
+            FeatureConfiguration.ALLOW_EXTERNAL_CATALOG_CREDENTIAL_VENDING, catalogEntity);
+    LOGGER.info("allow external catalog credential vending: {}", allowCredentialVending);
+    if (!allowCredentialVending
+        && catalogEntity
             .getCatalogType()
-            .equals(org.apache.polaris.core.admin.model.Catalog.TypeEnum.EXTERNAL)
-        && !realmConfig.getConfig(
-            FeatureConfiguration.ALLOW_EXTERNAL_CATALOG_CREDENTIAL_VENDING, catalogEntity)) {
+            .equals(org.apache.polaris.core.admin.model.Catalog.TypeEnum.EXTERNAL)) {
       throw new ForbiddenException(
           "Access Delegation is not enabled for this catalog. Please consult applicable "
               + "documentation for the catalog config property '%s' to enable this feature",
