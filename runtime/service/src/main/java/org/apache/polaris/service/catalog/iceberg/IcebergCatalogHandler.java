@@ -21,6 +21,7 @@ package org.apache.polaris.service.catalog.iceberg;
 import static org.apache.polaris.core.config.FeatureConfiguration.ALLOW_FEDERATED_CATALOGS_CREDENTIAL_VENDING;
 import static org.apache.polaris.core.config.FeatureConfiguration.LIST_PAGINATION_ENABLED;
 import static org.apache.polaris.service.catalog.AccessDelegationMode.REMOTE_SIGNING;
+import static org.apache.polaris.service.catalog.AccessDelegationMode.UNKNOWN;
 import static org.apache.polaris.service.catalog.AccessDelegationMode.VENDED_CREDENTIALS;
 
 import com.google.common.base.Preconditions;
@@ -865,13 +866,27 @@ public class IcebergCatalogHandler extends CatalogHandler implements AutoCloseab
     return responseBuilder;
   }
 
-  private static AccessDelegationMode selectAccessDelegationMode(
+  private AccessDelegationMode selectAccessDelegationMode(
       Set<AccessDelegationMode> delegationModes) {
+
+    // Whether vending credentials is globally enabled
+    boolean skipCredIndirection =
+        realmConfig.getConfig(FeatureConfiguration.SKIP_CREDENTIAL_SUBSCOPING_INDIRECTION);
+
+    // Credential subscoping is only allowed for local catalogs
+    // and federated catalogs that have credential vending explicitly enabled.
+    boolean credentialSubscopingAllowed =
+        baseCatalog instanceof IcebergCatalog
+            || realmConfig.getConfig(
+                ALLOW_FEDERATED_CATALOGS_CREDENTIAL_VENDING, getResolvedCatalogEntity());
+
+    // Always prefer VENDED_CREDENTIALS if requested and available,
+    // even if REMOTE_SIGNING is also requested.
     return delegationModes.contains(VENDED_CREDENTIALS)
-        ? AccessDelegationMode.VENDED_CREDENTIALS
-        : delegationModes.contains(REMOTE_SIGNING)
-            ? AccessDelegationMode.REMOTE_SIGNING
-            : AccessDelegationMode.UNKNOWN;
+            && credentialSubscopingAllowed
+            && !skipCredIndirection
+        ? VENDED_CREDENTIALS
+        : delegationModes.contains(REMOTE_SIGNING) ? REMOTE_SIGNING : UNKNOWN;
   }
 
   private void validateRemoteTableLocations(
