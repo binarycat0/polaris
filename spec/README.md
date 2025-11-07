@@ -47,7 +47,8 @@ Apache Polaris provides the following OpenAPI specifications:
 - [s3-sign](s3-sign) - This folder contains the specifications for S3 remote signing:
 
   - [iceberg-s3-signer-open-api.yaml](s3-sign/iceberg-s3-signer-open-api.yaml) - Contains the specification of the 
-    original Apache Iceberg S3 Signer API.
+    original Apache Iceberg S3 Signer API. Only the type definitions from this file are used; the actual API 
+    endpoints are not used as Polaris uses custom endpoints (see next file).
 
   - [polaris-s3-sign-service.yaml](s3-sign/polaris-s3-sign-service.yaml) - Contains the Apache Polaris-specific 
     S3 Signer API.
