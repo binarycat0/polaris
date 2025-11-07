@@ -830,9 +830,6 @@ public class IcebergCatalogAdapter
                         .addAll(VIEW_ENDPOINTS)
                         .addAll(PolarisEndpoints.getSupportedGenericTableEndpoints(realmConfig))
                         .addAll(PolarisEndpoints.getSupportedPolicyEndpoints(realmConfig))
-                        .addAll(
-                            PolarisEndpoints.getSupportedRemoteSigningEndpoints(
-                                callContext.getRealmConfig(), catalogEntity))
                         .build())
                 .build())
         .build();
