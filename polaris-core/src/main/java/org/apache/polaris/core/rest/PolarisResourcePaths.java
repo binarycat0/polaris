@@ -28,6 +28,12 @@ public class PolarisResourcePaths {
   private static final Joiner SLASH = Joiner.on("/").skipNulls();
   public static final String PREFIX = "prefix";
 
+  /**
+   * The "api/" path segment is the first path segment of all Polaris and Iceberg REST API paths. It
+   * is not included in the constants below, as it is considered implicit.
+   */
+  public static final String API_PATH_SEGMENT = "api";
+
   // Generic Table endpoints
   public static final String V1_GENERIC_TABLES =
       "polaris/v1/{prefix}/namespaces/{namespace}/generic-tables";
