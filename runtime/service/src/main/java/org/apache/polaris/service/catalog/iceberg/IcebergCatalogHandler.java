@@ -866,6 +866,14 @@ public class IcebergCatalogHandler extends CatalogHandler implements AutoCloseab
     return responseBuilder;
   }
 
+  /**
+   * Selects the most appropriate access delegation mode from the set of modes requested by the
+   * client.
+   *
+   * <p>See <a
+   * href="https://github.com/apache/iceberg/blob/main/open-api/rest-catalog-open-api.yaml#L1858-L1859">Iceberg
+   * REST Catalog spec</a>.
+   */
   private AccessDelegationMode selectAccessDelegationMode(
       Set<AccessDelegationMode> delegationModes) {
 
@@ -874,6 +882,7 @@ public class IcebergCatalogHandler extends CatalogHandler implements AutoCloseab
     }
 
     if (delegationModes.size() == 1) {
+      // No need to validate the mode here, it will be validated later.
       return delegationModes.iterator().next();
     }
 

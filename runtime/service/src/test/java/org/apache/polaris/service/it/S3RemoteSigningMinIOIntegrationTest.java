@@ -52,6 +52,7 @@ public class S3RemoteSigningMinIOIntegrationTest extends PolarisS3RemoteSigningI
       return ImmutableMap.<String, String>builder()
           .put("polaris.storage.aws.access-key", MINIO_ACCESS_KEY)
           .put("polaris.storage.aws.secret-key", MINIO_SECRET_KEY)
+          .put("polaris.readiness.ignore-severe-issues", "true")
           .put("polaris.features.\"REMOTE_SIGNING_ENABLED\"", "true")
           .put("polaris.features.\"SUPPORTED_CATALOG_STORAGE_TYPES\"", "[\"S3\"]")
           .put("polaris.features.\"SKIP_CREDENTIAL_SUBSCOPING_INDIRECTION\"", "false")

@@ -41,8 +41,8 @@ request adding CHANGELOG notes for breaking (!) changes and possibly other secti
   production-ready. One new table privilege was introduced: `TABLE_REMOTE_SIGN`. To enable remote signing:
     1. Set the system-wide property `REMOTE_SIGNING_ENABLED` or the catalog-level `polaris.request-signing.enabled`
        property to `true`.
-    2. Grant the `TABLE_REMOTE_SIGN` privilege to a catalog role. The role must also be granted the `TABLE_READ_DATA`
-       and `TABLE_WRITE_DATA` privileges.
+    2. Grant the `TABLE_REMOTE_SIGN` privilege to a catalog role. The catalog role must also be granted the 
+       `TABLE_READ_DATA` and `TABLE_WRITE_DATA` privileges.
 
 ### Upgrade notes
 

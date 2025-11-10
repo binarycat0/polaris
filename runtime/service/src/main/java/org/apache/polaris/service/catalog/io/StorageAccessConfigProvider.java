@@ -198,6 +198,7 @@ public class StorageAccessConfigProvider {
     }
 
     String prefix = prefixParser.catalogNameToPrefix(catalogName);
+    // TODO M2 handle cases where the catalog server is behind a proxy
     URI signerUri = uriInfo.getBaseUriBuilder().path(PolarisResourcePaths.API_PATH_SEGMENT).build();
     String signerEndpoint = new PolarisResourcePaths(prefix).s3RemoteSigning(tableIdentifier);
 

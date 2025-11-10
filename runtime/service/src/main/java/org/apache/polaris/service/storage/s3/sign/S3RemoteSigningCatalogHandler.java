@@ -128,6 +128,7 @@ public class S3RemoteSigningCatalogHandler extends CatalogHandler implements Aut
     return s3SignResponse;
   }
 
+  // TODO M2 computing allowed locations is expensive. We should cache it.
   private Collection<String> getAllowedLocations(TableIdentifier tableIdentifier) {
 
     if (baseCatalog.tableExists(tableIdentifier)) {
@@ -166,7 +167,12 @@ public class S3RemoteSigningCatalogHandler extends CatalogHandler implements Aut
   }
 
   private Set<PolarisStorageActions> getStorageActions(PolarisS3SignRequest s3SignRequest) {
-    // TODO M2: better handling of DELETE and LIST
+    // TODO M2: better mapping of request URIs to storage actions.
+    // Disambiguate LIST vs READ or WRITE vs DELETE is not possible based on the HTTP method alone.
+    // Examples:
+    // - ListObjects is conceptually a LIST operation, and GetObject is conceptually a READ. But
+    // both requests use the GET method.
+    // - DeleteObject uses the DELETE method, but the DeleteObjects operation uses the POST method.
     return s3SignRequest.write()
         ? Set.of(PolarisStorageActions.WRITE)
         : Set.of(PolarisStorageActions.READ);
