@@ -92,8 +92,7 @@ public class S3RemoteSigningCatalogHandler extends CatalogHandler implements Aut
     if (catalogEntity.isExternal()) {
       throw new ForbiddenException("Cannot use S3 remote signing with federated catalogs.");
     }
-    baseCatalog =
-        catalogFactory.createCallContextCatalog(callContext, polarisPrincipal, resolutionManifest);
+    baseCatalog = catalogFactory.createCallContextCatalog(resolutionManifest);
   }
 
   public PolarisS3SignResponse signS3Request(
