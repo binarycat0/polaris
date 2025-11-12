@@ -278,14 +278,11 @@ public record TestServices(
 
       StorageCredentialsVendor storageCredentialsVendor =
           new StorageCredentialsVendor(metaStoreManager, callContext);
-      StorageAccessConfigProvider storageAccessConfigProvider =
-          new StorageAccessConfigProvider(storageCredentialCache, storageCredentialsVendor);
       CatalogPrefixParser prefixParser = new DefaultCatalogPrefixParser();
-
-      AccessConfigProvider accessConfigProvider =
-          new AccessConfigProvider(
+      StorageAccessConfigProvider storageAccessConfigProvider =
+          new StorageAccessConfigProvider(
               storageCredentialCache,
-              metaStoreManagerFactory,
+              storageCredentialsVendor,
               storageIntegrationProvider,
               prefixParser,
               Mockito.mock(UriInfo.class));

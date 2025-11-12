@@ -163,7 +163,10 @@ public abstract class AbstractPolarisGenericTableCatalogTest {
     StorageCredentialsVendor storageCredentialsVendor =
         new StorageCredentialsVendor(metaStoreManager, polarisContext);
     storageAccessConfigProvider =
-        new StorageAccessConfigProvider(storageCredentialCache, storageCredentialsVendor,
+        new StorageAccessConfigProvider(
+            storageCredentialCache,
+            storageCredentialsVendor,
+            storageIntegrationProvider,
             prefixParser,
             Mockito.mock(UriInfo.class));
 

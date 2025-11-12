@@ -100,8 +100,7 @@ public class S3RemoteSigningCatalogHandlerAuthzTest extends PolarisAuthzTestBase
         .thenReturn(ImmutablePolarisS3SignResponse.builder().uri(URI.create("irrelevant")).build());
     CallContextCatalogFactory callContextCatalogFactory =
         Mockito.mock(CallContextCatalogFactory.class);
-    Mockito.when(callContextCatalogFactory.createCallContextCatalog(any()))
-        .thenReturn(baseCatalog);
+    Mockito.when(callContextCatalogFactory.createCallContextCatalog(any())).thenReturn(baseCatalog);
     return new S3RemoteSigningCatalogHandler(
         diagServices,
         callContext,
