@@ -73,12 +73,6 @@ public class PolarisEndpoints {
           .add(V1_GET_APPLICABLE_POLICIES)
           .build();
 
-  public static final Endpoint V1_S3_REMOTE_SIGNING =
-      Endpoint.create("POST", PolarisResourcePaths.V1_S3_REMOTE_SIGNING);
-
-  public static final Set<Endpoint> REMOTE_SIGNING_ENDPOINTS =
-      ImmutableSet.<Endpoint>builder().add(V1_S3_REMOTE_SIGNING).build();
-
   /**
    * Get the generic table endpoints. Returns GENERIC_TABLE_ENDPOINTS if ENABLE_GENERIC_TABLES is
    * set to true, otherwise, returns an empty set.

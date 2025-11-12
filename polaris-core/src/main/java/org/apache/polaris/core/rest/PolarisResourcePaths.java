@@ -48,10 +48,6 @@ public class PolarisResourcePaths {
       "/polaris/v1/{prefix}/namespaces/{namespace}/policies/{policy-name}/mappings";
   public static final String V1_APPLICABLE_POLICIES = "/polaris/v1/{prefix}/applicable-policies";
 
-  // S3 Remote Signing endpoint
-  public static final String V1_S3_REMOTE_SIGNING =
-      "/s3-sign/v1/{prefix}/namespaces/{namespace}/tables/{table}";
-
   private final String prefix;
 
   public PolarisResourcePaths(String prefix) {
