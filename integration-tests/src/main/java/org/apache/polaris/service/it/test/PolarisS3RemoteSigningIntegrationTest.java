@@ -20,15 +20,20 @@ package org.apache.polaris.service.it.test;
 
 import static org.apache.polaris.core.storage.StorageAccessProperty.AWS_ENDPOINT;
 import static org.apache.polaris.core.storage.StorageAccessProperty.AWS_PATH_STYLE_ACCESS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.iceberg.BaseTable;
 import org.apache.iceberg.PartitionSpec;
+import org.apache.iceberg.Table;
 import org.apache.iceberg.TableMetadata;
 import org.apache.iceberg.TableMetadataParser;
+import org.apache.iceberg.Transaction;
 import org.apache.iceberg.catalog.Namespace;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.exceptions.ForbiddenException;
@@ -87,6 +92,11 @@ public abstract class PolarisS3RemoteSigningIntegrationTest
     return Optional.empty();
   }
 
+  /**
+   * A set of allowed locations to include in the {@linkplain #getStorageConfigInfo() storage
+   * configuration info}. The first allowed location will serve as the base for the catalog default
+   * location.
+   */
   protected abstract List<String> allowedLocations();
 
   protected boolean stsUnavailable() {
@@ -134,6 +144,48 @@ public abstract class PolarisS3RemoteSigningIntegrationTest
         resolvingFileIO.deleteFile(fileLocation);
       }
     }
+  }
+
+  @CatalogConfig(
+      properties = {
+        "polaris.config.default-table-location-object-storage-prefix.enabled",
+        "true",
+        "polaris.config.allow.overlapping.table.location",
+        "true"
+      })
+  @Test
+  void testCreateTableWithObjectStoragePrefix() {
+    @SuppressWarnings("resource")
+    RESTCatalog restCatalog = catalog();
+    restCatalog.createNamespace(NS);
+    // Only direct table creation is supported with object storage prefix
+    Table tbl1 = restCatalog.buildTable(TABLE, SCHEMA).create();
+    // Will trigger write sign requests for manifests and snapshots, using object storage prefix
+    tbl1.newFastAppend().appendFile(FILE_A).commit();
+    // Will trigger many read sign requests for metadata and manifests
+    assertFiles(tbl1, FILE_A);
+    assertThat(tbl1).isNotNull();
+  }
+
+  @CatalogConfig(properties = {"polaris.config.allow.unstructured.table.location", "true"})
+  @Test
+  public void testCreateTableWithCustomLocation() {
+    @SuppressWarnings("resource")
+    RESTCatalog restCatalog = catalog();
+    restCatalog.createNamespace(NS);
+    String customLocation = allowedLocations().getFirst() + "/custom/tbl1";
+    Transaction create =
+        restCatalog.buildTable(TABLE, SCHEMA).withLocation(customLocation).createTransaction();
+    // Will trigger write sign requests for manifests and snapshots, before the table is created
+    create.newFastAppend().appendFile(FILE_A).commit();
+    // Will trigger table creation, then many read sign requests for metadata and manifests
+    create.commitTransaction();
+    Table tbl1 = restCatalog.loadTable(TABLE);
+    assertFiles(tbl1, FILE_A);
+    assertThat(tbl1)
+        .isNotNull()
+        .asInstanceOf(type(BaseTable.class))
+        .returns(customLocation, BaseTable::location);
   }
 
   @Test

@@ -71,7 +71,9 @@ public class S3RemoteSigningMinIOIT extends PolarisS3RemoteSigningIntegrationTes
 
   @Override
   protected List<String> allowedLocations() {
-    return List.of(storageBase.toString());
+    return List.of(
+        storageBase.resolve(BUCKET_URI_PREFIX + "/allowed-location1").toString(),
+        storageBase.resolve(BUCKET_URI_PREFIX + "/allowed-location2").toString());
   }
 
   @Override
